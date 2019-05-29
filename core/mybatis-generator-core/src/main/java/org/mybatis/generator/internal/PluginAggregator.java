@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,14 +16,11 @@
 package org.mybatis.generator.internal;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import org.mybatis.generator.api.GeneratedJavaFile;
-import org.mybatis.generator.api.GeneratedXmlFile;
-import org.mybatis.generator.api.Plugin;
-import org.mybatis.generator.api.IntrospectedColumn;
-import org.mybatis.generator.api.IntrospectedTable;
+import org.mybatis.generator.api.*;
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Interface;
 import org.mybatis.generator.api.dom.java.Method;
@@ -40,9 +37,9 @@ import org.mybatis.generator.config.Context;
  * <p>
  * This class does not follow the normal plugin lifecycle and should not be
  * subclassed by clients.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public final class PluginAggregator implements Plugin {
     private List<Plugin> plugins;
@@ -1191,5 +1188,19 @@ public final class PluginAggregator implements Plugin {
         }
 
         return rc;
+    }
+
+    public List<ResourceGeneratedFile> contextGenerateAdditionalResourceFiles() {
+        List<ResourceGeneratedFile> resourceGeneratedFiles = new ArrayList<ResourceGeneratedFile>();
+        for (Plugin plugin : plugins) {
+            if(plugin instanceof PluginAdapter){
+                PluginAdapter adapter = (PluginAdapter) plugin;
+                List<ResourceGeneratedFile> generatedFiles = adapter.contextGenerateAdditionalResourceFiles();
+                if(null != generatedFiles && !generatedFiles.isEmpty()){
+                    resourceGeneratedFiles.addAll(generatedFiles);
+                }
+            }
+        }
+        return resourceGeneratedFiles;
     }
 }

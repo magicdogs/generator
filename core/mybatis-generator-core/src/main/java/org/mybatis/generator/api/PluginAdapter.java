@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ import org.mybatis.generator.config.Context;
  * <p>
  * This adapter does not implement the <tt>validate</tt> method - all plugins
  * must perform validation.
- * 
+ *
  * @author Jeff Butler
- * 
+ *
  */
 public abstract class PluginAdapter implements Plugin {
     protected Context context;
@@ -451,4 +451,10 @@ public abstract class PluginAdapter implements Plugin {
             IntrospectedTable introspectedTable) {
         return true;
     }
+
+    public List<ResourceGeneratedFile> contextGenerateAdditionalResourceFiles() {
+        return null;
+    }
+
+
 }

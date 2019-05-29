@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import org.mybatis.generator.internal.XmlFileMergerJaxp;
 
 /**
  * This class is the main interface to MyBatis generator. A typical execution of the tool involves these steps:
- * 
+ *
  * <ol>
  * <li>Create a Configuration object. The Configuration can be the result of a parsing the XML configuration file, or it
  * can be created solely in Java.</li>
@@ -67,6 +67,9 @@ public class MyBatisGenerator {
     /** The generated xml files. */
     private List<GeneratedXmlFile> generatedXmlFiles;
 
+    /** The generated resource file.*/
+    private List<ResourceGeneratedFile> generatedResourcesFiles;
+
     /** The warnings. */
     private List<String> warnings;
 
@@ -75,7 +78,7 @@ public class MyBatisGenerator {
 
     /**
      * Constructs a MyBatisGenerator object.
-     * 
+     *
      * @param configuration
      *            The configuration for this invocation
      * @param shellCallback
@@ -114,6 +117,7 @@ public class MyBatisGenerator {
         }
         generatedJavaFiles = new ArrayList<GeneratedJavaFile>();
         generatedXmlFiles = new ArrayList<GeneratedXmlFile>();
+        generatedResourcesFiles = new ArrayList<ResourceGeneratedFile>();
         projects = new HashSet<String>();
 
         this.configuration.validate();
@@ -224,6 +228,7 @@ public class MyBatisGenerator {
 
         generatedJavaFiles.clear();
         generatedXmlFiles.clear();
+        generatedResourcesFiles.clear();
         ObjectFactory.reset();
         RootClassInfo.reset();
 
@@ -267,13 +272,13 @@ public class MyBatisGenerator {
 
         for (Context context : contextsToRun) {
             context.generateFiles(callback, generatedJavaFiles,
-                    generatedXmlFiles, warnings);
+                    generatedXmlFiles,generatedResourcesFiles, warnings);
         }
 
         // now save the files
         if (writeFiles) {
             callback.saveStarted(generatedXmlFiles.size()
-                + generatedJavaFiles.size());
+                + generatedJavaFiles.size() + generatedResourcesFiles.size());
 
             for (GeneratedXmlFile gxf : generatedXmlFiles) {
                 projects.add(gxf.getTargetProject());
@@ -285,12 +290,44 @@ public class MyBatisGenerator {
                 writeGeneratedJavaFile(gjf, callback);
             }
 
+            for (ResourceGeneratedFile gjf : generatedResourcesFiles) {
+                projects.add(gjf.getTargetProject());
+                writeGeneratedResourceFile(gjf, callback);
+            }
+
             for (String project : projects) {
                 shellCallback.refreshProject(project);
             }
         }
 
         callback.done();
+    }
+
+    private void writeGeneratedResourceFile(ResourceGeneratedFile gjf, ProgressCallback callback) {
+        File targetFile;
+        String source;
+        try {
+            File directory = shellCallback.getDirectory(gjf
+                    .getTargetProject(), gjf.getTargetPackage());
+            source = gjf.getFormattedContent();
+            targetFile = new File(directory, gjf.getFileName());
+            File parentFile = targetFile.getParentFile();
+            if(!parentFile.exists()){
+                parentFile.mkdirs();
+            }
+//            warnings.add(getString(
+//                    "Warning.2", targetFile.getAbsolutePath())); //$NON-NLS-1$
+            callback.checkCancel();
+            callback.startTask(getString(
+                    "Progress.15", targetFile.getName())); //$NON-NLS-1$
+            writeFile(targetFile, source, gjf.getFileEncoding());
+        } catch (ShellException e) {
+            warnings.add(e.getMessage());
+        } catch (InterruptedException e) {
+            warnings.add(e.getMessage());
+        } catch (IOException e) {
+            warnings.add(e.getMessage());
+        }
     }
 
     private void writeGeneratedJavaFile(GeneratedJavaFile gjf, ProgressCallback callback)
@@ -367,7 +404,7 @@ public class MyBatisGenerator {
             warnings.add(e.getMessage());
         }
     }
-    
+
     /**
      * Writes, or overwrites, the contents of the specified file.
      *
@@ -388,7 +425,7 @@ public class MyBatisGenerator {
         } else {
             osw = new OutputStreamWriter(fos, fileEncoding);
         }
-        
+
         BufferedWriter bw = new BufferedWriter(osw);
         bw.write(content);
         bw.close();
@@ -433,7 +470,7 @@ public class MyBatisGenerator {
      * Returns the list of generated Java files after a call to one of the generate methods.
      * This is useful if you prefer to process the generated files yourself and do not want
      * the generator to write them to disk.
-     *  
+     *
      * @return the list of generated Java files
      */
     public List<GeneratedJavaFile> getGeneratedJavaFiles() {
@@ -444,7 +481,7 @@ public class MyBatisGenerator {
      * Returns the list of generated XML files after a call to one of the generate methods.
      * This is useful if you prefer to process the generated files yourself and do not want
      * the generator to write them to disk.
-     *  
+     *
      * @return the list of generated XML files
      */
     public List<GeneratedXmlFile> getGeneratedXmlFiles() {

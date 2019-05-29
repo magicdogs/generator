@@ -1,5 +1,5 @@
 /**
- *    Copyright 2006-2016 the original author or authors.
+ *    Copyright 2006-2019 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * This class parses configuration files into the new Configuration API
- * 
+ *
  * @author Jeff Butler
  */
 public class MyBatisGeneratorConfigurationParser {
@@ -267,9 +267,15 @@ public class MyBatisGeneratorConfigurationParser {
         String delimitIdentifiers = attributes
                 .getProperty("delimitIdentifiers"); //$NON-NLS-1$
         String delimitAllColumns = attributes.getProperty("delimitAllColumns"); //$NON-NLS-1$
-        
+
         String mapperName = attributes.getProperty("mapperName"); //$NON-NLS-1$
         String sqlProviderName = attributes.getProperty("sqlProviderName"); //$NON-NLS-1$
+
+        String menuName = attributes.getProperty("menuName"); //$NON-NLS-1$
+
+        if (stringHasValue(menuName)) {
+            tc.setMenuName(menuName);
+        }
 
         if (stringHasValue(catalog)) {
             tc.setCatalog(catalog);
@@ -353,7 +359,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(delimitAllColumns)) {
             tc.setAllColumnDelimitingEnabled(isTrue(delimitAllColumns));
         }
-        
+
         if (stringHasValue(mapperName)) {
             tc.setMapperName(mapperName);
         }
@@ -361,7 +367,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(sqlProviderName)) {
             tc.setSqlProviderName(sqlProviderName);
         }
-        
+
         NodeList nodeList = node.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
             Node childNode = nodeList.item(i);
@@ -418,7 +424,7 @@ public class MyBatisGeneratorConfigurationParser {
         if (stringHasValue(delimitedColumnName)) {
             co.setColumnNameDelimited(isTrue(delimitedColumnName));
         }
-        
+
         if (stringHasValue(isGeneratedAlways)) {
             co.setGeneratedAlways(Boolean.parseBoolean(isGeneratedAlways));
         }
@@ -489,7 +495,7 @@ public class MyBatisGeneratorConfigurationParser {
 
         tc.addIgnoredColumnPattern(icPattern);
     }
-    
+
     private void parseException(IgnoredColumnPattern icPattern, Node node) {
         Properties attributes = parseAttributes(node);
         String column = attributes.getProperty("column"); //$NON-NLS-1$
@@ -745,7 +751,7 @@ public class MyBatisGeneratorConfigurationParser {
             }
         }
     }
-    
+
     protected void parseConnectionFactory(Context context, Node node) {
         ConnectionFactoryConfiguration connectionFactoryConfiguration = new ConnectionFactoryConfiguration();
 
@@ -776,27 +782,27 @@ public class MyBatisGeneratorConfigurationParser {
      * This method resolve a property from one of the three sources: system properties,
      * properties loaded from the <properties> configuration element, and
      * "extra" properties that may be supplied by the Maven or Ant envireonments.
-     * 
+     *
      * If there is a name collision, system properties take precedence, followed by
      * configuration properties, followed by extra properties.
-     * 
+     *
      * @param key
      * @return the resolved property.  This method will return null if the property is
      *   undefined in any of the sources.
      */
     private String resolveProperty(String key) {
         String property = null;
-    	
+
         property = System.getProperty(key);
-    	
+
         if (property == null) {
             property = configurationProperties.getProperty(key);
         }
-    	
+
         if (property == null) {
             property = extraProperties.getProperty(key);
         }
-    	
+
         return property;
     }
 }
