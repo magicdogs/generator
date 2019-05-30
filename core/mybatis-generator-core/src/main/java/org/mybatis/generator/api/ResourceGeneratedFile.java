@@ -22,7 +22,6 @@ public class ResourceGeneratedFile extends GeneratedFile{
     private StringWriter stringWriter;
     private String targetPackage;
     private String fileName;
-    private boolean directoryType;
     private String fileEncoding = "UTF-8";
 
     public ResourceGeneratedFile(String targetProject) {
@@ -43,14 +42,6 @@ public class ResourceGeneratedFile extends GeneratedFile{
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
-    }
-
-    public boolean isDirectoryType() {
-        return directoryType;
-    }
-
-    public void setDirectoryType(boolean directoryType) {
-        this.directoryType = directoryType;
     }
 
     @Override
