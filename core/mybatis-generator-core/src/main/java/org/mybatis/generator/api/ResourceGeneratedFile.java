@@ -15,6 +15,8 @@
  */
 package org.mybatis.generator.api;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.StringWriter;
 
 public class ResourceGeneratedFile extends GeneratedFile{
@@ -23,6 +25,7 @@ public class ResourceGeneratedFile extends GeneratedFile{
     private String targetPackage;
     private String fileName;
     private String fileEncoding;
+    private CallBackWriter callBackWriter;
 
     public ResourceGeneratedFile(String targetProject) {
         super(targetProject);
@@ -48,6 +51,9 @@ public class ResourceGeneratedFile extends GeneratedFile{
 
     @Override
     public String getFormattedContent() {
+        if(null == stringWriter){
+            return "";
+        }
         return stringWriter.toString();
     }
 
@@ -72,5 +78,13 @@ public class ResourceGeneratedFile extends GeneratedFile{
 
     public void setFileEncoding(String fileEncoding) {
         this.fileEncoding = fileEncoding;
+    }
+
+    public CallBackWriter getCallBackWriter() {
+        return callBackWriter;
+    }
+
+    public void setCallBackWriter(CallBackWriter callBackWriter) {
+        this.callBackWriter = callBackWriter;
     }
 }

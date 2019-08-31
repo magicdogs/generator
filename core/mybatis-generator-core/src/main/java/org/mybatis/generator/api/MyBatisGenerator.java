@@ -24,10 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.mybatis.generator.codegen.RootClassInfo;
 import org.mybatis.generator.config.Configuration;
@@ -320,7 +317,12 @@ public class MyBatisGenerator {
             callback.checkCancel();
             callback.startTask(getString(
                     "Progress.15", targetFile.getName())); //$NON-NLS-1$
-            writeFile(targetFile, source, gjf.getFileEncoding());
+            if(null != gjf.getCallBackWriter()){
+                gjf.getCallBackWriter().writeFile(targetFile,source,gjf.getFileEncoding());
+            }else{
+                writeFile(targetFile, source, gjf.getFileEncoding());
+            }
+
         } catch (ShellException e) {
             warnings.add(e.getMessage());
         } catch (InterruptedException e) {
